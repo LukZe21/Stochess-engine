@@ -2,13 +2,9 @@ import ctypes
 import os
 import platform
 
-print(platform.python_version())
 
-mode = dict(winmode=0) if platform.python_version() >= '3.8' else dict()
+lib = ctypes.CDLL("./sample.dll", **dict(winmode=1))
 
-print(mode)
-
-lib = ctypes.CDLL("./sample.dll", **mode)
 
 lib.getPosition.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.POINTER(ctypes.POINTER(ctypes.c_char))]
 lib.getPosition.restype = ctypes.c_char_p
@@ -22,20 +18,4 @@ char_arr = (ctypes.c_char_p*len(flat_pos_index))(*[ctypes.c_char_p(item.encode()
 char_ptr_arr = ctypes.cast(char_arr, ctypes.POINTER(ctypes.POINTER(ctypes.c_char)))
 
 result = lib.getPosition(500, 100, char_ptr_arr)
-
-
-board = {"b_rook1": "a8","b_knight1": "b8", "b_bishop1": "c8","b_queen": "d8","b_king": "e8","b_bishop2": "f8","b_knight2": "g8","b_rook2": "h8",
-         "b_pawn1": "a7","b_pawn2": "b7", "b_pawn3": "c7","b_pawn4": "d7", "b_pawn5": "e7","b_pawn6": "f7","b_pawn7": "g7","b_pawn8": "h7",
-         " ": "a6"," ": "b6", " ": "c6"," ": "d6"," ": "e6"," ": "f6"," ": "g6"," ": "h6",
-         " ": "a5"," ": "b5", " ": "c5"," ": "d5"," ": "e5"," ": "f5"," ": "g5"," ": "h5",
-         " ": "a4"," ": "b4", " ": "c4"," ": "d4"," ": "e4"," ": "f4"," ": "g4"," ": "h4",
-         " ": "a3"," ": "b3", " ": "c3"," ": "d3"," ": "e3"," ": "f3"," ": "g3"," ": "h3",
-         "w_pawn1": "a2","w_pawn2": "b2", "w_pawn3": "c2","w_pawn3": "d2", "w_pawn3": "e2","w_pawn3": "f2","w_pawn3": "g2","w_pawn3": "h2",
-         "w_rook1": "a1","w_knight1": "b1", "w_bishop1": "c1","w_queen": "d1","w_king": "e1","w_bishop2": "f1","w_knight2": "g1","w_rook2": "h1"}
-
-
-lib.movePiece.argtypes = [ctypes.c_char_p, ctypes.py_object]
-lib.movePiece.restype = ctypes.c_char_p
-
-result = lib.movePiece(b'a2', board)
-print(result)
+print(result.decode())

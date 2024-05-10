@@ -1,1 +1,1 @@
-position1
+    print(position)
