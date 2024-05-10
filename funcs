@@ -1,0 +1,15 @@
+def position_of_piece(position, board):
+    for key, val in board.items():
+        if key == position and val != " ":
+            return val
+    return "None"
+
+def move_piece(mouse_x, mouse_y):
+    new_pos = lib.getPosition(mouse_x, mouse_y, char_ptr_arr)
+    return new_pos.decode()
+
+
+def get_key_by_value(dicti, value):
+    for key,val in dicti.items():
+        if val == value:
+            return key

@@ -1,7 +1,14 @@
 import ctypes
 import os
+import platform
 
-lib = ctypes.CDLL(os.path.abspath("sample.dll"))
+print(platform.python_version())
+
+mode = dict(winmode=0) if platform.python_version() >= '3.8' else dict()
+
+print(mode)
+
+lib = ctypes.CDLL("./sample.dll", **mode)
 
 lib.getPosition.argtypes = [ctypes.c_int, ctypes.c_int, ctypes.POINTER(ctypes.POINTER(ctypes.c_char))]
 lib.getPosition.restype = ctypes.c_char_p

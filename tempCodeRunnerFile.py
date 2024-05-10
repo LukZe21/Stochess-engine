@@ -1,2 +1,1 @@
-
-lib.movePiece.restype = ctypes.c_char_p
+position1
