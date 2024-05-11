@@ -1,6 +1,11 @@
 from boards import board
-import numpy as np
 
+
+
+def get_key_by_value(dicti, value):
+    for key,val in dicti.items():
+        if val == value:
+            return key
 
 class Piece:
     def __init__(self, name, pos, color):
@@ -19,12 +24,6 @@ class Piece:
 
     def get_rows_and_columns(self):
         return self.pos[0], int(self.pos[1])
-
-
-def get_key_by_value(dicti, value):
-    for key,val in dicti.items():
-        if val == value:
-            return key
 
 
 class Pawn(Piece):
@@ -74,7 +73,7 @@ class Knight(Piece):
 
     def possible_move_directions(self):
         # Define the columns in reverse order to match the board's orientation
-        col_letters = ['unused','h','g','f','e','d','c','b','a', 'unused', 'unused1']
+        col_letters = ['unused', 'h','g','f','e','d','c','b','a', 'unused', 'unused1']
         
         # solid & attack moves
         col, row = self.get_rows_and_columns()
@@ -138,7 +137,7 @@ class Rook(Piece):
         super().__init__(name, pos, color)
     
     def possible_move_directions(self):
-        col_letters = ['unused','unused','unused','unused','unused','unused', 'h','g','f','e','d','c','b','a', 'unused']
+        col_letters = ['unused', 'unused', 'unused', 'unused', 'unused', 'unused', 'h','g','f','e','d','c','b','a', 'unused']
 
         col, row = self.get_rows_and_columns()
         possible_moves = []
@@ -166,4 +165,63 @@ class Rook(Piece):
                         except Exception as e:
                             print(e)
                     possible_moves = possible_moves + pos_possible_moves
+        return possible_moves
+    
+
+class Queen(Piece):
+    def __init__(self, name, pos, color):
+        super().__init__(name, pos, color)
+
+    def possible_move_directions(self):
+        col_letters = ['unused', 'unused', 'unused', 'unused', 'h','g','f','e','d','c','b','a', 'unused', 'unused', 'unused', 'unused', 'unused', 'unused']
+
+        col, row = self.get_rows_and_columns()
+        opp_color = 'b' if self.color=='w' else 'w'
+        possible_moves = []
+        for idx, c in enumerate(col_letters):
+            if c==col:
+                # diagonal moves
+                dir1 = [[idx - i, row - i] for i in range(8)]
+                dir2 = [[idx + i, row + i] for i in range(8)]
+                dir3 = [[idx + i, row - i] for i in range(8)]
+                dir4 = [[idx - i, row + i] for i in range(8)]
+                # straight moves
+                dir5 = [[idx+i, row] for i in range(8)]
+                dir6 = [[idx-i, row] for i in range(8)]
+                dir7 = [[idx, row-i] for i in range(8)]
+                dir8 = [[idx, row+(i)] for i in range(8)]
+                move_or_attack_positions = [dir1,dir2,dir3,dir4,dir5,dir6,dir7,dir8]
+                for direction in move_or_attack_positions:
+                    pos_possible_moves = []
+                    for pos in direction:
+                        try:
+                            move_or_attack_position = f"{col_letters[pos[0]]}{pos[1]}"
+                            if (board[move_or_attack_position] != self.name and board[move_or_attack_position].startswith(self.color)) or (board[move_or_attack_position] != self.name and opp_color in [board[pos][0] for pos in pos_possible_moves]):
+                                break
+                            if ('unused' not in move_or_attack_position) and (8>=pos[1]>0) and (not board[move_or_attack_position].startswith(self.color)):
+                                pos_possible_moves.append(move_or_attack_position)
+                        except Exception as e:
+                            print(e)
+                    possible_moves = possible_moves + pos_possible_moves
+        return possible_moves
+    
+class King(Piece):
+    def __init__(self, name, pos, color):
+        super().__init__(name,pos,color)
+
+    def possible_move_directions(self):
+        col_letters = ['unused', 'h','g','f','e','d','c','b','a', 'unused']
+        col, row = self.get_rows_and_columns()
+        possible_moves = []
+        move_pos_num = 1 if self.color=='w' else -1
+        for idx, c in enumerate(col_letters):
+            if c==col:
+                move_or_attack_positions = [f"{col_letters[idx]}{row-(move_pos_num)}", f"{col_letters[idx-(move_pos_num)]}{row+(move_pos_num)}", f"{col_letters[idx+(move_pos_num)]}{row+(move_pos_num)}", f"{col_letters[idx-(move_pos_num)]}{row}", f"{col_letters[idx-(move_pos_num)]}{row-(move_pos_num)}", f"{col_letters[idx+(move_pos_num)]}{row}", f"{col_letters[idx+(move_pos_num)]}{row-(move_pos_num)}", f"{col_letters[idx]}{row+(move_pos_num)}"]
+                for move_or_attack_position in move_or_attack_positions:
+                    try:
+                        if ('unused' not in move_or_attack_position) and (not board[move_or_attack_position].startswith(self.color)):
+                            print(move_or_attack_position)
+                            possible_moves.append(move_or_attack_position)
+                    except:
+                        continue
         return possible_moves
