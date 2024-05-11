@@ -4,7 +4,7 @@ import sys
 import os
 import re
 from boards import board, piece_locations
-from pieces import Pawn, Knight
+from pieces import Pawn, Knight, Bishop, Rook
 
 lib = ctypes.CDLL(os.path.abspath("sample.dll"))
 
@@ -82,39 +82,35 @@ while True:
             sys.exit()
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            try:
                 first_position = lib.getPosition(mouse_x, mouse_y, char_ptr_arr).decode() # what is board idx of square user has clicked on
                 result1 = board.get(first_position) # what piece(or nothing) is on first_position variable
                 print(f"{first_position} : {result1}")
 
 
                 # determines what piece user has selected
-                piece_classes = {'pawn': Pawn, 'knight': Knight}
-                for piece in ['pawn', 'knight']:
+                piece_classes = {'pawn': Pawn, 'knight': Knight, 'bishop': Bishop, 'rook': Rook}
+                for piece in ['pawn', 'knight', 'bishop', 'rook']:
                     if re.search(rf"{piece}", result1):
                         piece_class = piece_classes.get(piece)(result1, first_position, result1[0])
                         possible_moves = piece_class.possible_move_directions()
-            except Exception as e:
-                print(e)
-                continue
 
 
         elif event.type == pygame.MOUSEBUTTONUP:
-            try:
-                second_position = lib.getPosition(mouse_x, mouse_y, char_ptr_arr).decode() # pretty much does the same thing as above variables do.
-                result2 = board.get(second_position)
+            second_position = lib.getPosition(mouse_x, mouse_y, char_ptr_arr).decode() # pretty much does the same thing as above variables do.
+            result2 = board.get(second_position)
 
-                if result1 != " " and (result1[0]+result2[0] != 'ww') and (result1[0]+result2[0]!='bb'): #result1 and result2 should not be same color pieces
-                    if second_position in possible_moves:
-                        piece_class.move(first_position, second_position)
-                        possible_moves = []
-            except Exception as e:
-                print(e)
-                continue
+            if result1 != " " and (result1[0]+result2[0] != 'ww') and (result1[0]+result2[0]!='bb'): #result1 and result2 should not be same color pieces
+                if second_position in possible_moves:
+                    piece_class.move(first_position, second_position)
+                    possible_moves = []
 
-    # fill screen with a color
+    # chessboard
     screen.blit(chessboard_img, (0,0))
+
+    # show selected piece's moves
     show_moves(possible_moves)
+
+    # draw existing pieces
     draw_pieces()
 
     # update the display
