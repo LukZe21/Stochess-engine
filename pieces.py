@@ -163,7 +163,7 @@ class Rook(Piece):
                             if ('unused' not in move_or_attack_position) and (8>=pos[1]>0) and (not board[move_or_attack_position].startswith(self.color)):
                                 pos_possible_moves.append(move_or_attack_position)
                         except Exception as e:
-                            print(e)
+                            continue
                     possible_moves = possible_moves + pos_possible_moves
         return possible_moves
     
@@ -201,7 +201,7 @@ class Queen(Piece):
                             if ('unused' not in move_or_attack_position) and (8>=pos[1]>0) and (not board[move_or_attack_position].startswith(self.color)):
                                 pos_possible_moves.append(move_or_attack_position)
                         except Exception as e:
-                            print(e)
+                            continue
                     possible_moves = possible_moves + pos_possible_moves
         return possible_moves
     
@@ -220,8 +220,26 @@ class King(Piece):
                 for move_or_attack_position in move_or_attack_positions:
                     try:
                         if ('unused' not in move_or_attack_position) and (not board[move_or_attack_position].startswith(self.color)):
-                            print(move_or_attack_position)
                             possible_moves.append(move_or_attack_position)
                     except:
                         continue
         return possible_moves
+    
+    def is_check(self, all_opposite_moves):
+        ''' Checks for check '''
+        king_moves = self.possible_move_directions()
+        king_moves.append(self.pos)
+
+        if self.pos in all_opposite_moves:
+            return True
+        return False
+        
+
+    def is_checkmate(self, all_opposite_moves):
+        ''' Checks for checkmate '''
+        king_moves = self.possible_move_directions()
+        king_moves.append(self.pos)
+
+        if set(king_moves).issubset(set(all_opposite_moves)):
+            print("CHECKMATE")
+            return True
