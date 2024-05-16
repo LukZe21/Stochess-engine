@@ -13,14 +13,12 @@ class Piece:
         self.pos = pos
         self.color = color
 
-    def move(self, pos1, pos2):
+    def move(self, pos1, pos2, board_dict=board):
         '''
         Swaps pos1 value to pos2. sets pos1 value to " ".
         '''
-        pos1 = pos1
-        pos2 = pos2
-        board[pos1] = " "
-        board[pos2] = self.name
+        board_dict[pos1] = " "
+        board_dict[pos2] = self.name
 
     def get_rows_and_columns(self):
         return self.pos[0], int(self.pos[1])
@@ -225,7 +223,7 @@ class King(Piece):
                         continue
         return possible_moves
     
-    def is_check(self, all_opposite_moves):
+    def in_checkmate(self, all_opposite_moves):
         ''' Checks for check '''
         king_moves = self.possible_move_directions()
         king_moves.append(self.pos)
@@ -233,13 +231,3 @@ class King(Piece):
         if self.pos in all_opposite_moves:
             return True
         return False
-        
-
-    def is_checkmate(self, all_opposite_moves):
-        ''' Checks for checkmate '''
-        king_moves = self.possible_move_directions()
-        king_moves.append(self.pos)
-
-        if set(king_moves).issubset(set(all_opposite_moves)):
-            print("CHECKMATE")
-            return True
