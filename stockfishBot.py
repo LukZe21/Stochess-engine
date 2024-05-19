@@ -1,4 +1,6 @@
 import subprocess
+import pygame
+import sys
 
 stockfish_path = 'stockfish/stockfish_algorithm.exe'
 
@@ -35,7 +37,7 @@ def set_position(moves):
 
 def get_best_move():
     """Get the best move from the current position"""
-    send_command("go movetime 1000")
+    send_command("go movetime 50")
     while True:
         line = engine.stdout.readline().strip()
         if line.startswith('bestmove'):
@@ -64,5 +66,19 @@ def main():
     print("Game Over!")
     send_command("quit")
 
+
 if __name__ == "__main__":
     main()
+
+def stockfish_move(moves_lst, board):
+    set_position(moves_lst)
+    best_move = get_best_move()
+    moves_lst.append(best_move)
+
+    if best_move == "(none)":
+        print("CHECKMATE for black")
+        pygame.quit()
+        sys.exit()
+    temp = board.get(best_move[:2])
+    board[best_move[:2]] = " "
+    board[best_move[2:]] = temp
