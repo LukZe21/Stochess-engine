@@ -6,6 +6,7 @@ import re
 from boards import board, piece_locations
 from pieces import Pawn, Knight, Bishop, Rook, Queen, King
 from chess_ai import ChessAI
+from stockfishBot import start_stockfish, set_position, get_best_move, set_skill_level
 
 
 def get_key_by_value(dicti, value):
@@ -42,7 +43,7 @@ screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Chess")
 
 # chessboard image
-chessboard_img = pygame.image.load("imgs/chessboard.png")
+chessboard_img = pygame.image.load("imgs/chessboard1.png")
 chessboard_img = pygame.transform.scale(chessboard_img, (WIDTH, HEIGHT))
 
 # piece move icon
@@ -109,7 +110,7 @@ def all_piece_moves(all_white_moves=[], all_black_moves=[], board_dict=board):
     return all_white_moves, all_black_moves
 
 
-moves = 0
+moves = 1
 
 def draw_check(piece_classes, all_white_moves, all_black_moves, cause_piece):
     try:
@@ -143,6 +144,9 @@ def draw_check(piece_classes, all_white_moves, all_black_moves, cause_piece):
         None
         
 
+
+start_stockfish()
+set_skill_level(20)
 # main game loop
 async def main():
     global moves
@@ -151,14 +155,34 @@ async def main():
     result1 = None
     color_piece = None
 
+    moves_lst = []
     # determines what piece user has selected
     while True:
+        if moves%2==1:
+            set_position(moves_lst)
+            best_move = get_best_move()
+            print(best_move)
+            if best_move == "(none)":
+                print("CHECKMATE for white")
+                pygame.quit()
+                sys.exit()
+            temp = board.get(best_move[:2])
+            board[best_move[:2]] = " "
+            board[best_move[2:]] = temp
+            moves_lst.append(best_move)
+            moves+=1      
+
+ 
         for event in pygame.event.get():
             mouse_x, mouse_y = pygame.mouse.get_pos()
             all_white_moves, all_black_moves = all_piece_moves()
+             
+
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
+
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 first_position = getPosition(mouse_x, mouse_y, pos_index) # what is board idx of square user has clicked on
                 result1 = board.get(first_position) # what piece(or nothing) is on first_position variable
@@ -176,41 +200,17 @@ async def main():
                 second_position = getPosition(mouse_x, mouse_y, pos_index) # pretty much does the same thing as above variables do.
                 result2 = board.get(second_position)
 
-                if result1.startswith('w_'):
+
+                if result1.startswith('w_') and moves%2==0:
                     if result1 != " " and (result1[0]+result2[0] != 'ww') and (result1[0]+result2[0]!='bb'): #result1 and result2 should not be same color pieces
                             if second_position in possible_moves:
                                 piece_class.move(first_position, second_position)
+                                moves_lst.append(f"{first_position}{second_position}")
                                 possible_moves = []
                                 if result2.startswith('b'):
                                     remaining_pieces.remove(result2)
-                                
-                                pos, best_piece = ChessAI.generate_move(remaining_pieces)
-                                if pos and best_piece:
-                                    print(pos, best_piece)
 
-
-                                # black's generated move
-                                position = get_key_by_value(board, best_piece)
-                                best_piece_for_dict = ''.join(filter(str.isalpha, best_piece))
-                                black_move = piece_classes.get(best_piece_for_dict[1:])(best_piece, position, 'b')
-                                
-                                board2 = copy.deepcopy(board)
-                                black_move.move(position, pos, board_dict=board2)
-
-                                all_white_moves, all_black_moves = all_piece_moves(board_dict=board2)
-
-                                if not piece_classes.get('king')(f"b_king", get_key_by_value(board, f"b_king"), 'b').in_checkmate(all_white_moves):
-                                    black_move.move(position, pos, board_dict=board)
-                                
-                                else:
-                                    position = get_key_by_value(board, 'b_king')
-                                    black_move = piece_classes.get('king')('b_king', position, 'b')
-                                    king_moves = black_move.possible_move_directions()
-                                    for move in king_moves:
-                                        if move not in all_white_moves:
-                                            black_move.move(position, move)
-                                            break
-
+                                all_white_moves, all_black_moves = all_piece_moves()
                                 # checks if piece is in checkmate or not (if it is it will quit the game)
                                 # checks checkmate for black
                                 if piece_classes.get('king')(f"b_king", get_key_by_value(board, f"b_king"), 'b').pos in all_white_moves:
@@ -224,12 +224,10 @@ async def main():
                                     king_piece = piece_classes.get('king')(f"{color}_king", get_key_by_value(board, f"{color}_king"), color)
                                     checkmate = king_piece.in_checkmate(all_black_moves if result1[0]=='w' else all_white_moves)
                                     if checkmate:
-                                        print("White is in check!")
-                                    moves+=2
-                                else:
-                                    print("CHECKMATE for white")
-                                    pygame.quit()
-                                    sys.exit()
+                                        print("CHECKMATE for white")
+                                        pygame.quit()
+                                        sys.exit()
+                                moves+=1
         
         # chessboard
         screen.blit(chessboard_img, (0,0))

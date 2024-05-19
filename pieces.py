@@ -1,7 +1,5 @@
 from boards import board
 
-
-
 def get_key_by_value(dicti, value):
     for key,val in dicti.items():
         if val == value:

@@ -44,3 +44,6 @@ class ChessAI:
                     continue
             return random_possible_move, random_piece
         return pos, best_piece
+    
+
+

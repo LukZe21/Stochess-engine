@@ -1,1 +1,1 @@
-pos
+print(moves_lst)
