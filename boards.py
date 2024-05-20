@@ -1,19 +1,19 @@
 import pygame
 
 
-bishop_black = pygame.image.load("imgs/Pieces/black_bishop.png")
-knight_black = pygame.image.load("imgs/Pieces/black_knight.png")
-queen_black = pygame.image.load("imgs/Pieces/black_queen.png")
-king_black = pygame.image.load("imgs/Pieces/black_king.png")
-rook_black = pygame.image.load("imgs/Pieces/black_rook.png")
-pawn_black = pygame.image.load("imgs/Pieces/black_pawn.png")
+bishop_black = pygame.image.load("imgs/Pieces/white_bishop.png")
+knight_black = pygame.image.load("imgs/Pieces/white_knight.png")
+queen_black = pygame.image.load("imgs/Pieces/white_queen.png")
+king_black = pygame.image.load("imgs/Pieces/white_king.png")
+rook_black = pygame.image.load("imgs/Pieces/white_rook.png")
+pawn_black = pygame.image.load("imgs/Pieces/white_pawn.png")
 
-bishop_white = pygame.image.load("imgs/Pieces/white_bishop.png")
-knight_white = pygame.image.load("imgs/Pieces/white_knight.png")
-queen_white = pygame.image.load("imgs/Pieces/white_queen.png")
-king_white = pygame.image.load("imgs/Pieces/white_king.png")
-rook_white = pygame.image.load("imgs/Pieces/white_rook.png")
-pawn_white = pygame.image.load("imgs/Pieces/white_pawn.png")
+bishop_white = pygame.image.load("imgs/Pieces/black_bishop.png")
+knight_white = pygame.image.load("imgs/Pieces/black_knight.png")
+queen_white = pygame.image.load("imgs/Pieces/black_queen.png")
+king_white = pygame.image.load("imgs/Pieces/black_king.png")
+rook_white = pygame.image.load("imgs/Pieces/black_rook.png")
+pawn_white = pygame.image.load("imgs/Pieces/black_pawn.png")
 
 
 board = {"a8": "w_rook1", "b8": "w_knight1", "c8": "w_bishop1", "d8": "w_queen", "e8": "w_king", "f8": "w_bishop2", "g8": "w_knight2", "h8": "w_rook2",

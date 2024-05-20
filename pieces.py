@@ -11,7 +11,7 @@ class Piece:
         self.pos = pos
         self.color = color
 
-    def move(self, pos1, pos2, board_dict=board):
+    def move(self, pos1, pos2, board_dict):
         '''
         Swaps pos1 value to pos2. sets pos1 value to " ".
         '''
@@ -26,9 +26,11 @@ class Pawn(Piece):
     def __init__(self, name, pos, color):
         super().__init__(name,pos, color)
 
-    def possible_move_directions(self):
+    col_letters = ['h','g','f','e','d','c','b','a', 'unused']
+
+    def possible_move_directions(self, board):
         # define the columns in reverse order to match the board's orientation
-        col_letters = ['h','g','f','e','d','c','b','a', 'unused']
+        
         # solid moves
         col, row = self.get_rows_and_columns()
         # possible moves piece can take in given position.
@@ -46,28 +48,35 @@ class Pawn(Piece):
                     possible_moves.append(move_position)
             except:
                 continue
-
+        
+        possible_move_attacks = self.possible_attack_moves(board)
+        
+        # merging normal moves and attack moves into one list
+        return possible_moves + possible_move_attacks 
+    
+    def possible_attack_moves(self, board):
         # attack moves
         col, row = self.pos[0], int(self.pos[1])
         possible_move_attacks = []
-        for idx, i in enumerate(col_letters):
+        for idx, i in enumerate(self.col_letters):
             if col == i:
                 # possible attack positions
-                attack_positions = [f"{col_letters[idx-1]}{row-1}", f"{col_letters[idx+1]}{row-1}"] if self.color == 'w' else [f"{col_letters[idx-1]}{row+1}", f"{col_letters[idx+1]}{row+1}"] 
+                attack_positions = [f"{self.col_letters[idx-1]}{row-1}", f"{self.col_letters[idx+1]}{row-1}"] if self.color == 'w' else [f"{self.col_letters[idx-1]}{row+1}", f"{self.col_letters[idx+1]}{row+1}"] 
                 for attack_position in attack_positions:
                     try:
-                        if (board[attack_position].startswith('b_') and self.color == 'w') or (board[attack_position].startswith('w_') and self.color == 'b'):
+                        if (board[attack_position].startswith('b_') and self.color == 'w') or (self.color == 'b'):
                             possible_move_attacks.append(attack_position)
                     except:
                         continue
-        # merging normal moves and attack moves into one list
-        return possible_moves + possible_move_attacks
+        return possible_move_attacks
+            
+            
 
 class Knight(Piece):
     def __init__(self, name, pos, color):
         super().__init__(name,pos,color)
 
-    def possible_move_directions(self):
+    def possible_move_directions(self, board):
         # Define the columns in reverse order to match the board's orientation
         col_letters = ['unused', 'h','g','f','e','d','c','b','a', 'unused', 'unused1']
         
@@ -95,7 +104,7 @@ class Bishop(Piece):
     def __init__(self, name, pos, color):
         super().__init__(name, pos, color)
 
-    def possible_move_directions(self):
+    def possible_move_directions(self, board):
         col_letters = ['unused', 'unused1', 'unused2', 'unused3', 'unused4', 'h','g','f','e','d','c','b','a', 'unused', 'unused1', 'unused2', 'unused3', 'unused4']
 
         col, row = self.get_rows_and_columns()
@@ -132,7 +141,7 @@ class Rook(Piece):
     def __init__(self, name, pos, color):
         super().__init__(name, pos, color)
     
-    def possible_move_directions(self):
+    def possible_move_directions(self, board):
         col_letters = ['unused', 'unused', 'unused', 'unused', 'unused', 'unused', 'h','g','f','e','d','c','b','a', 'unused']
 
         col, row = self.get_rows_and_columns()
@@ -168,7 +177,7 @@ class Queen(Piece):
     def __init__(self, name, pos, color):
         super().__init__(name, pos, color)
 
-    def possible_move_directions(self):
+    def possible_move_directions(self, board):
         col_letters = ['unused', 'unused', 'unused', 'unused', 'h','g','f','e','d','c','b','a', 'unused', 'unused', 'unused', 'unused', 'unused', 'unused']
 
         col, row = self.get_rows_and_columns()
@@ -205,7 +214,7 @@ class King(Piece):
     def __init__(self, name, pos, color):
         super().__init__(name,pos,color)
 
-    def possible_move_directions(self):
+    def possible_move_directions(self, all_opponent_moves, board):
         col_letters = ['unused', 'h','g','f','e','d','c','b','a', 'unused']
         col, row = self.get_rows_and_columns()
         possible_moves = []
@@ -215,15 +224,15 @@ class King(Piece):
                 move_or_attack_positions = [f"{col_letters[idx]}{row-(move_pos_num)}", f"{col_letters[idx-(move_pos_num)]}{row+(move_pos_num)}", f"{col_letters[idx+(move_pos_num)]}{row+(move_pos_num)}", f"{col_letters[idx-(move_pos_num)]}{row}", f"{col_letters[idx-(move_pos_num)]}{row-(move_pos_num)}", f"{col_letters[idx+(move_pos_num)]}{row}", f"{col_letters[idx+(move_pos_num)]}{row-(move_pos_num)}", f"{col_letters[idx]}{row+(move_pos_num)}"]
                 for move_or_attack_position in move_or_attack_positions:
                     try:
-                        if ('unused' not in move_or_attack_position) and (not board[move_or_attack_position].startswith(self.color)):
+                        if ('unused' not in move_or_attack_position) and (not board[move_or_attack_position].startswith(self.color)) and move_or_attack_position not in all_opponent_moves:
                             possible_moves.append(move_or_attack_position)
                     except:
                         continue
         return possible_moves
     
-    def in_checkmate(self, all_opposite_moves):
+    def in_checkmate(self, all_opposite_moves, board=board):
         ''' Checks for check '''
-        king_moves = self.possible_move_directions()
+        king_moves = self.possible_move_directions(all_opposite_moves, board)
         king_moves.append(self.pos)
 
         if self.pos in all_opposite_moves:

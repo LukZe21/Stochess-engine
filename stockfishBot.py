@@ -37,7 +37,7 @@ def set_position(moves):
 
 def get_best_move():
     """Get the best move from the current position"""
-    send_command("go movetime 50")
+    send_command("go movetime 500")
     while True:
         line = engine.stdout.readline().strip()
         if line.startswith('bestmove'):
@@ -70,15 +70,10 @@ def main():
 if __name__ == "__main__":
     main()
 
-def stockfish_move(moves_lst, board):
+def stockfish_move(moves_lst):
     set_position(moves_lst)
     best_move = get_best_move()
+    print(f"Stockfish 16.1's move: {best_move}")
     moves_lst.append(best_move)
 
-    if best_move == "(none)":
-        print("CHECKMATE for black")
-        pygame.quit()
-        sys.exit()
-    temp = board.get(best_move[:2])
-    board[best_move[:2]] = " "
-    board[best_move[2:]] = temp
+    return best_move
