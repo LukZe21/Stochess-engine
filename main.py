@@ -32,6 +32,12 @@ pygame.mixer.init()
 screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.SRCALPHA)
 pygame.display.set_caption("Chess")
 
+# game icon
+stochess_icon = pygame.image.load('imgs/Stochess_icon.png') 
+pygame.display.set_icon(stochess_icon)
+
+
+
 ROWS,COLUMNS = 8, 8
 
 SQUARE_SIZE = HEIGHT / ROWS

@@ -46,7 +46,7 @@ col_convert_dict = {'a':0,'b':1,'c':2,'d':3,'e':4,'f':5,'g':6,'h':7} # convertin
 
 
 # chessboard image
-chessboard_img = pygame.image.load("imgs/chessboard1.png")
+chessboard_img = pygame.image.load("imgs/Board/chessboard.png")
 chessboard_img = pygame.transform.scale(chessboard_img, (WIDTH, HEIGHT))
 
 # sounds
