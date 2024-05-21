@@ -1,5 +1,5 @@
 # StoChess Game (Chess Engine)
-![Image Alt Text](imgs/Stochess_logo_resized.png)
+![Image Alt Text](imgs/Stochess_logo.png)
 StoChess is almost fully functional simple chess game with an AI opponent based on the Stockfish engine.
 
 
