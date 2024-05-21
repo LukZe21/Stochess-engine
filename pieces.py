@@ -226,6 +226,16 @@ class King(Piece):
                         continue
         return possible_moves
     
+    def castle(self, board, rook):
+        if rook == 'w_rook1':
+            if self.pos == 'e8' and board.get('d8')==" " and board.get('c8')==" " and board.get('b8')==" " and board.get('a8')=='w_rook1':
+                return True, 'c8', 'd8'
+        if rook == 'w_rook2':
+            if self.pos == 'e8' and board.get('f8')==" " and board.get('g8')==" " and board.get("h8")=='w_rook2':
+                return True, 'g8', 'f8'
+        return False, None, None
+        
+    
     def in_checkmate(self, all_opposite_moves, board=board):
         ''' Checks for check '''
         king_moves = self.possible_move_directions(all_opposite_moves, board)

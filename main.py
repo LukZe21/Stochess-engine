@@ -2,7 +2,7 @@ import pygame
 import asyncio
 import sys
 import re
-from assets import board, piece_locations, pos_index, col_convert_dict, piece_move, piece_capture, game_start, game_end, illegal_move, move_check, chessboard_img, WIDTH, HEIGHT
+from assets import board, piece_locations, pos_index, col_convert_dict, piece_move, piece_capture, game_start, castle, illegal_move, move_check, chessboard_img, WIDTH, HEIGHT
 from pieces import Pawn, Knight, Bishop, King, Queen, Rook
 from stockfishBot import start_stockfish, set_skill_level, stockfish_move
 from buttons import restart_button
@@ -164,7 +164,7 @@ def define_piece(piece, pos, color):
 
 # starts and sets skill level for stockfish chess bot
 start_stockfish()
-set_skill_level(20)
+set_skill_level(1)
 
 
 # main game loop
@@ -183,7 +183,9 @@ async def main():
 
     restart_game = False
     
-    made_move = False  
+    made_move = False
+    
+    castlable = True # if player is able to castle.
 
     while True:
         # functionality of restart_button - if clicked game will restart to it's default
@@ -196,36 +198,52 @@ async def main():
             all_white_moves, all_black_moves = all_piece_moves(board_dict=board)
             moves = 1
             restart_game = False
+            castlable = True
         
         # if it is white's turn stockfish will make a move.
         if moves%2==1:
             best_move = stockfish_move(moves_lst) # returns best move for white
             if best_move != "(none)":
                 try:
-                    temp = board.get(best_move[:2])
-                    board[best_move[:2]] = " "
-
-                    if board[best_move[2:]].startswith('w_'):
-                        piece_capture.play() # capture sound
-
-                    board[best_move[2:]] = temp
-                    piece_class = define_piece(temp, best_move[2:], 'b')
-
-                    if 'king' not in temp:
-                        piece_possible_directions = piece_class.possible_move_directions(board)
-                        
-                    # if white king is in pieces possible directions
-                    white_king = define_piece('w_king', get_key_by_value(board, 'w_king'), 'w')
-                    white_king_pos = white_king.pos 
-
-                    if white_king_pos in piece_possible_directions:
-                        move_check.play() # check sound
-                        king_in_check = True
+                    # for castling
+                    if best_move == 'e1g1':
+                        board['g1'] = 'b_king'
+                        board['e1'] = ' '
+                        board['h1'] = ' '
+                        board['f1'] = 'b_rook2'                       
+                        castle.play() # castling sound
+                    elif best_move == 'e1c1':
+                        board['c1'] = 'b_king'
+                        board['e1'] = ' '
+                        board['a1'] = ' '
+                        board['d1'] = 'b_rook1'
+                        castle.play() # castling sound
+                    
+                    # any other move
                     else:
-                        piece_move.play() # move sound
-                        king_in_check = False
-                    board2 = board.copy()
+                        temp = board.get(best_move[:2])
+                        board[best_move[:2]] = " "
 
+                        if board[best_move[2:]].startswith('w_'):
+                            piece_capture.play() # capture sound
+
+                        board[best_move[2:]] = temp
+                        piece_class = define_piece(temp, best_move[2:], 'b')
+
+                        if 'king' not in temp:
+                            piece_possible_directions = piece_class.possible_move_directions(board)
+                            
+                        # if white king is in pieces possible directions
+                        white_king = define_piece('w_king', get_key_by_value(board, 'w_king'), 'w')
+                        white_king_pos = white_king.pos 
+
+                        if white_king_pos in piece_possible_directions:
+                            move_check.play() # check sound
+                            king_in_check = True
+                        else:
+                            piece_move.play() # move sound
+                            king_in_check = False
+                    board2 = board.copy()
                 except:
                     continue
 
@@ -277,7 +295,7 @@ async def main():
 
             elif event.type == pygame.MOUSEBUTTONUP:
                 black_king = define_piece('b_king', get_key_by_value(board, 'b_king'), 'b')
-                black_king_pos = black_king.pos 
+                black_king_pos = black_king.pos
 
                 # Drag and Drop move
                 second_position = getPosition(mouse_x, mouse_y, pos_index) # pretty much does the same thing as above variables do.
@@ -286,10 +304,11 @@ async def main():
                 if result1.startswith('w_') and moves%2==0:
                     if result1 != " " and (result1[0]+result2[0] != 'ww') and (result1[0]+result2[0]!='bb'): #result1 and result2 should not be same color pieces
                             if second_position in possible_moves:
+                                if result1 == 'w_king' or 'w_rook' in result1:
+                                    castlable = False
                                 if board.get(second_position).startswith('b'):
                                     piece_capture.play()
                                 piece_class.move(first_position, second_position, board)
-                                # board2 = board.copy()
                                 made_move = True
                                     
                                 moves_lst.append(f"{first_position}{second_position}")
@@ -305,7 +324,20 @@ async def main():
                                 moves+=1
                             else:
                                 illegal_move.play()
-                
+
+                    # Castling
+                    if result1=='w_king' and 'w_rook' in result2 and castlable:
+                            castle_is_possible, pos_for_king, pos_for_rook = piece_class.castle(board, result2)  
+                            if castle_is_possible:
+                                board[pos_for_king] = 'w_king'
+                                board['e8'] = ' '
+                                board[get_key_by_value(board, result2)] = ' '
+                                board[pos_for_rook] = result2
+                                moves_lst.append(f"e8{pos_for_king}")                         
+                                board2 = board.copy()
+                                moves += 1
+                                castlable = False
+                                castle.play() # castling sound
                 # Click move
                 if first_position in possible_moves:
                     if board.get(second_position).startswith('b'):
