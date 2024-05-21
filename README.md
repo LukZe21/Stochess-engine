@@ -1,5 +1,5 @@
 # StoChess Game (Chess Engine)
-![Image Alt Text](imgs/Stochess_logo.png)
+![Image Alt Text](imgs/Stochess_logo_resized.png)
 StoChess is almost fully functional simple chess game with an AI opponent based on the Stockfish engine.
 
 
@@ -8,7 +8,7 @@ StoChess is almost fully functional simple chess game with an AI opponent based 
 - [Usage](#usage)
 - [Feedback](#feedback)
 - [License](#license)
-- 
+ 
 ## Installation
 To install StoChess, follow these steps:
 1. Clone this repo;
