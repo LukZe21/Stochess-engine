@@ -31,4 +31,4 @@ Feel free to reach out if you find any bugs and/or have an improvement proposal.
 ## License
 This project is licensed under the [MIT License](LICENSE).
 
-***I will try to update this engine and make it more like modern chess-like engines are.***
+***I will try to update this engine and make it more like modern chess engines.***
