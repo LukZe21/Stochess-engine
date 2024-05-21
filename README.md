@@ -4,13 +4,13 @@ StoChess is almost fully functional simple chess game with an AI opponent based 
 
 
 ## Table of Contents
-- [Installation](#installation)
+- [Modification](#modification)
 - [Usage](#usage)
 - [Feedback](#feedback)
 - [License](#license)
-- 
-## Installation
-To install StoChess, follow these steps:
+ 
+## Modification
+To modify this project, follow these steps:
 1. Clone this repo;
 2. Install the necessary Python modules using pip:
 
@@ -24,10 +24,11 @@ To use this project, follow these steps:
 
 ## Feedback
 Feel free to reach out if you find any bugs and/or have an improvement proposal.
+
 *email: ldzotsenidze4@gmail.com*
 
 
 ## License
 This project is licensed under the [MIT License](LICENSE).
 
-***I will try to update this engine and make it more like modern chess-like engines are.***
+***I will try to update this engine and make it more like modern chess engines.***
