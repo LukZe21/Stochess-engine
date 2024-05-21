@@ -5,7 +5,7 @@ import re
 from assets import board, piece_locations, pos_index, col_convert_dict, piece_move, piece_capture, game_start, game_end, illegal_move, move_check, chessboard_img, WIDTH, HEIGHT
 from pieces import Pawn, Knight, Bishop, King, Queen, Rook
 from stockfishBot import start_stockfish, set_skill_level, stockfish_move
-from functions import restart_button
+from buttons import restart_button
 
 fresh_board = board.copy()
 
@@ -300,6 +300,7 @@ async def main():
                                     move_check.play() # check sound
                                 else:
                                     piece_move.play()
+                                    
                                 possible_moves = []
                                 moves+=1
                             else:
@@ -364,6 +365,7 @@ async def main():
 
         # update the display
         pygame.display.flip()
+        
         await asyncio.sleep(0)
 
 asyncio.run(main())
