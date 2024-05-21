@@ -1,6 +1,4 @@
 import subprocess
-import pygame
-import sys
 
 stockfish_path = 'stockfish/stockfish_algorithm.exe'
 

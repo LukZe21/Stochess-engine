@@ -1,5 +1,7 @@
 import pygame
 
+pygame.mixer.init()
+WIDTH, HEIGHT = 800, 800
 
 bishop_black = pygame.image.load("imgs/Pieces/white_bishop.png")
 knight_black = pygame.image.load("imgs/Pieces/white_knight.png")
@@ -34,3 +36,23 @@ piece_locations = {"w_rook1": rook_white,"w_knight1": knight_white,"w_bishop1": 
                     "b_king": king_black,"b_bishop2": bishop_black, "b_knight2": knight_black, "b_rook2": rook_black,
                    "b_pawn1":pawn_black, "b_pawn2":pawn_black, "b_pawn3":pawn_black, "b_pawn4":pawn_black, "b_pawn5":pawn_black,
                    "b_pawn6":pawn_black, "b_pawn7":pawn_black, "b_pawn8":pawn_black}
+
+
+pos_index = [["a1","a2","a3","a4","a5","a6","a7","a8"], ["b1","b2","b3","b4","b5","b6","b7","b8"], ["c1","c2","c3","c4","c5","c6","c7","c8"], ["d1","d2","d3","d4","d5","d6","d7","d8"],
+    ["e1","e2","e3","e4","e5","e6","e7","e8"], ["f1","f2","f3","f4","f5","f6","f7","f8"], ["g1","g2","g3","g4","g5","g6","g7","g8"], ["h1","h2","h3","h4","h5","h6","h7","h8"]]
+
+
+col_convert_dict = {'a':0,'b':1,'c':2,'d':3,'e':4,'f':5,'g':6,'h':7} # converting letters into numbers (for columns)
+
+
+# chessboard image
+chessboard_img = pygame.image.load("imgs/chessboard1.png")
+chessboard_img = pygame.transform.scale(chessboard_img, (WIDTH, HEIGHT))
+
+# sounds
+piece_move = pygame.mixer.Sound('sounds/piece_move.mp3')
+piece_capture = pygame.mixer.Sound('sounds/piece_capture.mp3')
+game_start = pygame.mixer.Sound('sounds/game-start.mp3')
+game_end = pygame.mixer.Sound('sounds/game-end.mp3')
+illegal_move = pygame.mixer.Sound('sounds/illegal.mp3')
+move_check = pygame.mixer.Sound('sounds/move-check.mp3')

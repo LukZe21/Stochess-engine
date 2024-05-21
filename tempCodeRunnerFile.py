@@ -1,1 +1,1 @@
-moves_lst
+pygame.mixer.init()

@@ -2,7 +2,7 @@ import random
 import re
 import time
 from pieces import Pawn, Knight, Bishop, Rook, Queen, King
-from boards import board
+from assets import board
 
 piece_classes = {'pawn': Pawn, 'knight': Knight, 'bishop': Bishop, 'rook': Rook, 'queen': Queen, 'king': King}
 def get_key_by_value(dicti, value):
@@ -14,7 +14,6 @@ def get_key_by_value(dicti, value):
 class ChessAI:
     def __init__(self):
         self.color = 'b'
-        #'b_pawn': -10, 'b_knight':-30, 'b_bishop':-30, 'b_rook':-50, 'b_queen':-90, 'b_king':-900, 
 
     def generate_move(remaining_pieces):
         best_score, best_piece, pos = 0, None, None

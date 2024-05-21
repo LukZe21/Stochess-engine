@@ -1,4 +1,4 @@
-from boards import board
+from assets import board
 
 def get_key_by_value(dicti, value):
     for key,val in dicti.items():
@@ -12,9 +12,7 @@ class Piece:
         self.color = color
 
     def move(self, pos1, pos2, board_dict):
-        '''
-        Swaps pos1 value to pos2. sets pos1 value to " ".
-        '''
+        ''' Swaps pos1 value to pos2. sets pos1 value to " ". '''
         board_dict[pos1] = " "
         board_dict[pos2] = self.name
 
@@ -28,9 +26,7 @@ class Pawn(Piece):
 
     col_letters = ['h','g','f','e','d','c','b','a', 'unused']
 
-    def possible_move_directions(self, board):
-        # define the columns in reverse order to match the board's orientation
-        
+    def possible_move_directions(self, board):  
         # solid moves
         col, row = self.get_rows_and_columns()
         # possible moves piece can take in given position.
