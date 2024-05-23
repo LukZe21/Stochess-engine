@@ -398,7 +398,7 @@ async def main():
                                 illegal_move.play()
 
                     # Castling
-                    if result1=='w_king' and 'w_rook' in result2 and castlable:
+                    if result1=='w_king' and 'w_rook' in result2 and castlable and not checkmate:
                             rook_piece = define_piece(result2, get_key_by_value(board, result2), 'w')
                             if not rook_piece.already_moved:
                                 castle_is_possible, pos_for_king, pos_for_rook = piece_class.castle(board, result2)  
