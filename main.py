@@ -2,10 +2,10 @@ import pygame
 import asyncio
 import sys
 import re
-from assets import board, piece_locations, pos_index, col_convert_dict, piece_move, piece_capture, game_start, castle, illegal_move, move_check, chessboard_img, WIDTH, HEIGHT
+from constants import board, piece_locations, piece_imgs, pos_index, col_convert_dict, piece_move, piece_capture, game_start, castle, illegal_move, move_check, chessboard_img, WIDTH, HEIGHT
 from pieces import Pawn, Knight, Bishop, King, Queen, Rook
 from stockfishBot import start_stockfish, set_skill_level, stockfish_move
-from buttons import restart_button
+from buttons import restart_button, promotion_to_rook, promotion_to_bishop, promotion_to_knight, promotion_to_queen
 
 fresh_board = board.copy()
 
@@ -75,35 +75,38 @@ def show_moves(directions, color, moves, mouseX, mouseY):
 
 def all_piece_moves(board_dict, all_white_moves=[], all_black_moves=[]):
     ''' returns the two list(for black and white pieces) of all possible moves pieces are available to make. '''
+    try:
+        for key, piece in board_dict.items():
+            
+            if piece != " ":
+                if piece[2:] not in ['queen', 'king']:
+                    piece_class = piece_classes.get(piece[2:-1])(piece, key, piece[0])
+                    if 'pawn' in piece[2:]:
+                        possible_moves = piece_class.possible_attack_moves(board_dict)
+                    else:
+                        possible_moves = piece_class.possible_move_directions(board_dict)
 
-    for key, piece in board_dict.items():
-        if piece != " ":
-            if piece[2:] not in ['queen', 'king']:
-                piece_class = piece_classes.get(piece[2:-1])(piece, key, piece[0])
-                if 'pawn' in piece[2:]:
-                    possible_moves = piece_class.possible_attack_moves(board_dict)
-                else:
-                    possible_moves = piece_class.possible_move_directions(board_dict)
+                    if piece[0] == 'w':
+                        all_white_moves = all_white_moves+possible_moves
+                    else:
+                        all_black_moves = all_black_moves+possible_moves
 
-                if piece[0] == 'w':
-                    all_white_moves = all_white_moves+possible_moves
-                else:
-                    all_black_moves = all_black_moves+possible_moves
+                elif piece[2:] in ['queen', 'king']:
+                    piece_class = piece_classes.get(piece[2:])(piece, key, piece[0])
+                    if piece[2:] == 'king' and piece[0]=='w':
+                        possible_moves = piece_class.possible_move_directions(all_black_moves, board_dict)
+                    elif piece[2:] == 'king' and piece[0]=='b':
+                        possible_moves = piece_class.possible_move_directions(all_white_moves, board_dict)
+                    else:
+                        possible_moves = piece_class.possible_move_directions(board_dict)
 
-            elif piece[2:] in ['queen', 'king']:
-                piece_class = piece_classes.get(piece[2:])(piece, key, piece[0])
-                if piece[2:] == 'king' and piece[0]=='w':
-                    possible_moves = piece_class.possible_move_directions(all_black_moves, board_dict)
-                elif piece[2:] == 'king' and piece[0]=='b':
-                    possible_moves = piece_class.possible_move_directions(all_white_moves, board_dict)
-                else:
-                    possible_moves = piece_class.possible_move_directions(board_dict)
-
-                if piece[0] == 'w':
-                    all_white_moves = all_white_moves + possible_moves
-                else:
-                    all_black_moves = all_black_moves + possible_moves
-    return all_white_moves, all_black_moves
+                    if piece[0] == 'w':
+                        all_white_moves = all_white_moves + possible_moves
+                    else:
+                        all_black_moves = all_black_moves + possible_moves
+        return all_white_moves, all_black_moves
+    except:
+        None, None
 
 
 def possible_legal_moves(piece_that_caused_check, all_possible_moves_for_selected_piece, name_of_the_piece):
@@ -164,7 +167,7 @@ def define_piece(piece, pos, color):
 
 # starts and sets skill level for stockfish chess bot
 start_stockfish()
-set_skill_level(1)
+set_skill_level(20)
 
 
 # main game loop
@@ -187,6 +190,12 @@ async def main():
     
     castlable = True # if player is able to castle.
 
+    # promotion
+    promotion_time = False
+    promotion_piece = None
+    num_of_promotions = 2 # 2 because for no intersection between original pieces
+    selected = False
+
     while True:
         # functionality of restart_button - if clicked game will restart to it's default
         if restart_game:
@@ -200,12 +209,13 @@ async def main():
             restart_game = False
             castlable = True
         
+
         # if it is white's turn stockfish will make a move.
         if moves%2==1:
             best_move = stockfish_move(moves_lst) # returns best move for white
             if best_move != "(none)":
                 try:
-                    # for castling
+                    # castling
                     if best_move == 'e1g1':
                         board['g1'] = 'b_king'
                         board['e1'] = ' '
@@ -219,6 +229,15 @@ async def main():
                         board['d1'] = 'b_rook1'
                         castle.play() # castling sound
                     
+                    # pawn promotion
+                    elif best_move[-1] == 'q' or best_move[-1] == 'b' or best_move[-1] == 'r' or best_move[-1] == 'n':
+                        board[best_move[:2]] = ' '
+                        promotion_pieces = {'q': 'b_queen', 'b': 'b_bishop', 'r': 'b_rook', 'n': 'b_knight'}
+                        num_of_promotions += 1
+                        piece_locations[promotion_pieces.get(best_move[-1]) + num_of_promotions] = piece_imgs.get(promotion_pieces.get(best_move[-1]))
+                        board[best_move[2:-1]] = promotion_pieces.get(best_move[-1]) + num_of_promotions
+                        board2 = board.copy()
+
                     # any other move
                     else:
                         temp = board.get(best_move[:2])
@@ -263,13 +282,49 @@ async def main():
                 sys.exit()
 
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                board2 = board.copy() # for dragging the piece (for it to get removed from place it was selected.)
                 # restart button
                 if restart_button.is_over(event.pos):
                     restart_game = True
+                
+                # Pawn promotion choices
+                try:
+                    if promotion_to_queen.is_over(event.pos) and selected:
+                        num_of_promotions += 1
+                        promotion_piece = 'w_queen' + str(num_of_promotions)
+                        piece_class.promote(board, second_position, promotion_piece)
+                        board2 = board.copy()
+                        moves_lst.append(f"{first_position}{second_position}q")
+                        promotion_time = False
+                        selected = False
 
-                # for click move
-                prev_location = get_key_by_value(board, result1)
+                    elif promotion_to_rook.is_over(event.pos) and selected:
+                        num_of_promotions += 1
+                        promotion_piece = 'w_rook' + str(num_of_promotions)
+                        piece_class.promote(board, second_position, promotion_piece)
+                        board2 = board.copy()
+                        moves_lst.append(f"{first_position}{second_position}r")
+                        promotion_time = False
+                        selected = False
+
+                    elif promotion_to_bishop.is_over(event.pos) and selected:
+                        num_of_promotions += 1
+                        promotion_piece = 'w_bishop' + str(num_of_promotions)
+                        piece_class.promote(board, second_position, promotion_piece)
+                        board2 = board.copy()
+                        moves_lst.append(f"{first_position}{second_position}b")
+                        promotion_time = False
+                        selected = False
+
+                    elif promotion_to_knight.is_over(event.pos) and selected:
+                        num_of_promotions += 1
+                        promotion_piece = 'w_knight' + str(num_of_promotions)
+                        piece_class.promote(board, second_position, promotion_piece)
+                        board2 = board.copy()
+                        moves_lst.append(f"{first_position}{second_position}n")
+                        promotion_time = False
+                        selected = False
+                except:
+                    continue
 
                 # Drag and Drop move
                 first_position = getPosition(mouse_x, mouse_y, pos_index) # what is board idx of square user has clicked on
@@ -282,14 +337,19 @@ async def main():
                     selected_piece_posX, selected_piece_posY = mouse_x, mouse_y
                     for piece in ['pawn', 'knight', 'bishop', 'rook', 'queen', 'king']:
                         if re.search(rf"{piece}", result1):
-                            if re.search(rf"king", result1):
+                            if piece == 'king':
                                 piece_class = piece_classes.get(piece)(result1, first_position, result1[0])
                                 possible_moves = piece_class.possible_move_directions(all_black_moves, board)
                             else:
                                 piece_class = piece_classes.get(piece)(result1, first_position, result1[0])
                                 possible_moves = piece_class.possible_move_directions(board)
                                 if king_in_check:
-                                    possible_moves = possible_legal_moves(temp, possible_moves, result1)
+                                    try:
+                                        possible_moves = possible_legal_moves(temp, possible_moves, result1)
+                                    except:
+                                        continue
+                            # for click move
+                            prev_location = get_key_by_value(board, result1)
                             color_piece = result1[0] # what color is a piece
                 down = True # makes down variable true for dragging selected piece.
 
@@ -304,13 +364,25 @@ async def main():
                 if result1.startswith('w_') and moves%2==0:
                     if result1 != " " and (result1[0]+result2[0] != 'ww') and (result1[0]+result2[0]!='bb'): #result1 and result2 should not be same color pieces
                             if second_position in possible_moves:
+                                if board.get(second_position).startswith('b'):
+                                    piece_capture.play() # capture sound
+                                
+                                # conditions for pawn promotion
+                                if re.search(rf"pawn", result1):
+                                    if second_position[1]=='1':
+                                        promotion_time = True
+                                        selected = True
+                                        
+                                # castling conditions
+                                if re.search(rf"rook", result1):
+                                    piece_class.already_moved = True
                                 if result1 == 'w_king' or 'w_rook' in result1:
                                     castlable = False
-                                if board.get(second_position).startswith('b'):
-                                    piece_capture.play()
+
+                                # piece move function
                                 piece_class.move(first_position, second_position, board)
                                 made_move = True
-                                    
+
                                 moves_lst.append(f"{first_position}{second_position}")
 
                                 all_white_moves, all_black_moves = all_piece_moves(board)
@@ -319,7 +391,7 @@ async def main():
                                     move_check.play() # check sound
                                 else:
                                     piece_move.play()
-                                    
+                                
                                 possible_moves = []
                                 moves+=1
                             else:
@@ -327,32 +399,35 @@ async def main():
 
                     # Castling
                     if result1=='w_king' and 'w_rook' in result2 and castlable:
-                            castle_is_possible, pos_for_king, pos_for_rook = piece_class.castle(board, result2)  
-                            if castle_is_possible:
-                                board[pos_for_king] = 'w_king'
-                                board['e8'] = ' '
-                                board[get_key_by_value(board, result2)] = ' '
-                                board[pos_for_rook] = result2
-                                moves_lst.append(f"e8{pos_for_king}")                         
-                                board2 = board.copy()
-                                moves += 1
-                                castlable = False
-                                castle.play() # castling sound
+                            rook_piece = define_piece(result2, get_key_by_value(board, result2), 'w')
+                            if not rook_piece.already_moved:
+                                castle_is_possible, pos_for_king, pos_for_rook = piece_class.castle(board, result2)  
+                                if castle_is_possible:
+                                    board[pos_for_king] = 'w_king'
+                                    board['e8'] = ' '
+                                    board[get_key_by_value(board, result2)] = ' '
+                                    board[pos_for_rook] = result2
+                                    moves_lst.append(f"e8{pos_for_king}")                         
+                                    board2 = board.copy()
+                                    moves += 1
+                                    castlable = False
+                                    castle.play() # castling sound
+
                 # Click move
                 if first_position in possible_moves:
-                    if board.get(second_position).startswith('b'):
-                        piece_capture.play()
                     piece_class.move(prev_location, first_position, board)
                     made_move = True
                     moves_lst.append(f"{prev_location}{first_position}")
                     possible_moves = []
+                    board2 = board.copy()
                     moves+=1
 
-                    if black_king_pos in all_white_moves:
+                    if board.get(second_position).startswith('b'):
+                        piece_capture.play()
+                    elif black_king_pos in all_white_moves:
                         move_check.play() # check sound
                     else:
                         piece_move.play()
-                        possible_moves = []
                     
                 all_white_moves, all_black_moves = all_piece_moves(board)
 
@@ -394,6 +469,12 @@ async def main():
         draw_check(piece_classes, all_white_moves, all_black_moves, cause_piece=result1)
 
         restart_button.draw(screen)
+
+        if promotion_time: # promotion buttons
+            promotion_to_queen.draw(screen)
+            promotion_to_rook.draw(screen)
+            promotion_to_bishop.draw(screen)
+            promotion_to_knight.draw(screen)
 
         # update the display
         pygame.display.flip()

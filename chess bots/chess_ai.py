@@ -2,7 +2,7 @@ import random
 import re
 import time
 from pieces import Pawn, Knight, Bishop, Rook, Queen, King
-from assets import board
+from constants import board
 
 piece_classes = {'pawn': Pawn, 'knight': Knight, 'bishop': Bishop, 'rook': Rook, 'queen': Queen, 'king': King}
 def get_key_by_value(dicti, value):

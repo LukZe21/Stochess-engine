@@ -37,6 +37,9 @@ piece_locations = {"w_rook1": rook_white,"w_knight1": knight_white,"w_bishop1": 
                    "b_pawn1":pawn_black, "b_pawn2":pawn_black, "b_pawn3":pawn_black, "b_pawn4":pawn_black, "b_pawn5":pawn_black,
                    "b_pawn6":pawn_black, "b_pawn7":pawn_black, "b_pawn8":pawn_black}
 
+piece_imgs = {'w_queen': queen_white, 'w_rook': rook_white, 'w_bishop': bishop_white, 'w_knight': knight_white,
+              'b_queen': queen_black, 'b_rook': rook_black, 'b_bishop': bishop_black, 'b_knight': knight_black}
+
 
 pos_index = [["a1","a2","a3","a4","a5","a6","a7","a8"], ["b1","b2","b3","b4","b5","b6","b7","b8"], ["c1","c2","c3","c4","c5","c6","c7","c8"], ["d1","d2","d3","d4","d5","d6","d7","d8"],
     ["e1","e2","e3","e4","e5","e6","e7","e8"], ["f1","f2","f3","f4","f5","f6","f7","f8"], ["g1","g2","g3","g4","g5","g6","g7","g8"], ["h1","h2","h3","h4","h5","h6","h7","h8"]]

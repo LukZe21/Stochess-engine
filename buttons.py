@@ -25,3 +25,7 @@ class Button:
 
 button1 = Button(400, 400, 200, 50, (0,0,255), 'Play again')
 restart_button = Button(0, 0, 200, 50, (0, 255, 0), 'Restart')
+promotion_to_queen = Button(300, 150, 200, 50, (0, 255, 0), 'Queen')
+promotion_to_bishop = Button(300, 220, 200, 50, (0, 255, 0), 'Bishop')
+promotion_to_rook = Button(300, 290, 200, 50, (0, 255, 0), 'Rook')
+promotion_to_knight = Button(300, 360, 200, 50, (0, 255, 0), 'Knight')

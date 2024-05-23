@@ -1,4 +1,5 @@
-from assets import board
+import pygame
+from constants import board, piece_locations, queen_white, rook_white, bishop_white, knight_white
 
 def get_key_by_value(dicti, value):
     for key,val in dicti.items():
@@ -65,8 +66,19 @@ class Pawn(Piece):
                     except:
                         continue
         return possible_move_attacks
+
+    def promote(self, board, pos, promote_piece):
+        board[pos] = promote_piece
+        if 'w_queen' in promote_piece:
+            piece_locations[promote_piece] = pygame.transform.scale(queen_white, (80,80))
+        elif 'w_rook' in promote_piece:
+            piece_locations[promote_piece] = pygame.transform.scale(rook_white, (80,80))
+        elif 'w_bishop' in promote_piece:
+            piece_locations[promote_piece] = pygame.transform.scale(bishop_white, (80,80))
+        else:
+            piece_locations[promote_piece] = pygame.transform.scale(knight_white, (80,80))
             
-            
+    
 
 class Knight(Piece):
     def __init__(self, name, pos, color):
@@ -136,6 +148,7 @@ class Bishop(Piece):
 class Rook(Piece):
     def __init__(self, name, pos, color):
         super().__init__(name, pos, color)
+        self.already_moved = False  
     
     def possible_move_directions(self, board):
         col_letters = ['unused', 'unused', 'unused', 'unused', 'unused', 'unused', 'h','g','f','e','d','c','b','a', 'unused']
